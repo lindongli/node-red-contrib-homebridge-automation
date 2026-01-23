@@ -5,7 +5,7 @@
   "main": "src/HAP-NodeRed.js",
   "scripts": {
     "document": "./gh-md-toc --insert --no-backup --hide-footer README.md",
-    "prewatch": "mkdir -p test/node-red/node_modules && test -L test/node-red/node_modules/node-red-contrib-homebridge-automation || ln -s ~/Code/node-red-contrib-homebridge-automation test/node-red/node_modules/node-red-contrib-homebridge-automation",
+    "prewatch": "mkdir -p test/node-red/node_modules && test -L test/node-red/node_modules/node-red-contrib-homebridge-automation || ln -s \"$(pwd)\" test/node-red/node_modules/node-red-contrib-homebridge-automation",
     "watch": "nodemon",
     "lint": "eslint --max-warnings=10 .",
     "lint:fix": "eslint --fix --max-warnings=0 .",
