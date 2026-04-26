@@ -16,7 +16,7 @@ const HUMAN_TYPE_DISPLAY = {
 
 // Canonical device name — accessoryInformation.Name if set, otherwise serviceName
 function getFriendlyName(service) {
-  return service.accessoryInformation.Name || service.serviceName;
+  return service.values?.ConfiguredName || service.serviceName || service.accessoryInformation.Name;
 }
 
 // Canonical device identifier — must be the single source of truth for matching
