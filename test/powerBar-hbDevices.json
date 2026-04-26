@@ -9,6 +9,24 @@
     "manufacturer": "Tasmota"
   },
   {
+    "name": "Parent Bedroom Toilet left",
+    "fullName": "Parent Bedroom Toilet left - Switch (Aqara)",
+    "sortName": "Parent Bedroom Toilet left:Switch",
+    "uniqueId": "homebridge0E:3E:8C:40:6F:4BAqaraParent Bedroom Toilet left00000049",
+    "homebridge": "homebridge",
+    "service": "Switch",
+    "manufacturer": "Aqara"
+  },
+  {
+    "name": "Parent Bedroom Toilet right",
+    "fullName": "Parent Bedroom Toilet right - Switch (Aqara)",
+    "sortName": "Parent Bedroom Toilet right:Switch",
+    "uniqueId": "homebridge0E:3E:8C:40:6F:4BAqaraParent Bedroom Toilet right00000049",
+    "homebridge": "homebridge",
+    "service": "Switch",
+    "manufacturer": "Aqara"
+  },
+  {
     "name": "Switch 2",
     "fullName": "Switch 2 - Outlet (Tasmota)",
     "sortName": "Switch 2:Outlet",

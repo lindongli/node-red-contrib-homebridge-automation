@@ -418,5 +418,107 @@
     },
     "uniqueId": "636b95a766314ab01a0ec424c4472d72c7ce61e39706d9c21d33652fd669a896",
     "nameBasedUniqueId": "0c3f79a626617562e585dfc879fcd66b3e95fd7d69c8132eca959a97e91091eb"
+  },
+  {
+    "aid": 24,
+    "iid": 9,
+    "uuid": "00000049-0000-1000-8000-0026BB765291",
+    "type": "Switch",
+    "humanType": "Switch",
+    "serviceName": "Parent Bedroom Toilet left",
+    "serviceCharacteristics": [
+      {
+        "aid": 24,
+        "iid": 11,
+        "uuid": "00000025-0000-1000-8000-0026BB765291",
+        "type": "On",
+        "serviceType": "Switch",
+        "serviceName": "Parent Bedroom Toilet left",
+        "description": "On",
+        "value": 1,
+        "format": "bool",
+        "perms": [
+          "ev",
+          "pr",
+          "pw"
+        ],
+        "canRead": true,
+        "canWrite": true,
+        "ev": true
+      }
+    ],
+    "accessoryInformation": {
+      "Manufacturer": "Aqara",
+      "Model": "QBKG24LM",
+      "Name": "Parent Bedroom Toilet",
+      "Serial Number": "0x00158d00051ec3b9",
+      "Firmware Revision": "?",
+      "Hardware Revision": "12-23-2021"
+    },
+    "values": {
+      "On": 1
+    },
+    "instance": {
+      "name": "homebridge",
+      "username": "0E:3E:8C:40:6F:4B",
+      "ipAddress": "127.0.0.1",
+      "port": 51513,
+      "services": [],
+      "connectionFailedCount": 0,
+      "configurationNumber": "36"
+    },
+    "uniqueId": "3cbf55bb49e96a1315b83edf83abe5a0086ed9bb319cce4ad20ae52ae86670fc",
+    "nameBasedUniqueId": "323e6b5eacfa906d11546f9b244967b2a1c57dceed9a63615dc736e6ed31a53d"
+  },
+  {
+    "aid": 24,
+    "iid": 12,
+    "uuid": "00000049-0000-1000-8000-0026BB765291",
+    "type": "Switch",
+    "humanType": "Switch",
+    "serviceName": "Parent Bedroom Toilet right",
+    "serviceCharacteristics": [
+      {
+        "aid": 24,
+        "iid": 14,
+        "uuid": "00000025-0000-1000-8000-0026BB765291",
+        "type": "On",
+        "serviceType": "Switch",
+        "serviceName": "Parent Bedroom Toilet right",
+        "description": "On",
+        "value": 0,
+        "format": "bool",
+        "perms": [
+          "ev",
+          "pr",
+          "pw"
+        ],
+        "canRead": true,
+        "canWrite": true,
+        "ev": true
+      }
+    ],
+    "accessoryInformation": {
+      "Manufacturer": "Aqara",
+      "Model": "QBKG24LM",
+      "Name": "Parent Bedroom Toilet",
+      "Serial Number": "0x00158d00051ec3b9",
+      "Firmware Revision": "?",
+      "Hardware Revision": "12-23-2021"
+    },
+    "values": {
+      "On": 0
+    },
+    "instance": {
+      "name": "homebridge",
+      "username": "0E:3E:8C:40:6F:4B",
+      "ipAddress": "127.0.0.1",
+      "port": 51513,
+      "services": [],
+      "connectionFailedCount": 0,
+      "configurationNumber": "36"
+    },
+    "uniqueId": "b5a81acba6501aaa68b9d2d67f143c0f1a6fab9336003ad0d2a6707a10126da5",
+    "nameBasedUniqueId": "78a03c678161daa42a6880c8e1bd4f0aadf1a9a13e70466b28b5f27ebb7fba61"
   }
 ]

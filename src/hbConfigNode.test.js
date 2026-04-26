@@ -309,11 +309,11 @@ describe('from files', () => {
 
     // console.log('result', result);
     // this.warn(`Writing Homebridge endpoints to ${storagePath}`);
-    fs.writeFileSync('test/powerBar-hbDevices.json', JSON.stringify(result, null, 2));
+    // fs.writeFileSync('test/powerBar-hbDevices.json', JSON.stringify(result, null, 2));
     storagePath = path.join(process.cwd(), 'test/powerBar-hbDevices.json');
     // console.log(`Reading Homebridge results from ${storagePath}`);
     const fileResult = JSON.parse(fs.readFileSync(storagePath, 'utf8'));
-    expect(result.length).toBe(6);
+    expect(result.length).toBe(8);
     expect(result).toEqual(fileResult);
 
     // Ensure the unsupported type was filtered out
