@@ -15,8 +15,22 @@ const HUMAN_TYPE_DISPLAY = {
 };
 
 // Canonical device name — accessoryInformation.Name if set, otherwise serviceName
+
+// return service.values?.ConfiguredName || service.serviceName || service.accessoryInformation.Name;
+
 function getFriendlyName(service) {
-  return service.values?.ConfiguredName || service.serviceName || service.accessoryInformation.Name;
+  if (service.values?.ConfiguredName) {
+    return service.values.ConfiguredName;
+  } else if (service.serviceName) {
+    if (service.values?.serviceLabelIndex) {
+      return `${service.serviceName}-${service.values.serviceLabelIndex}`;
+    }
+    return service.serviceName;
+  } else if (service.values?.serviceLabelIndex) {
+    return `${service.accessoryInformation.Name}-${service.values.serviceLabelIndex}`;
+  } else {
+    return service.accessoryInformation.Name;
+  }
 }
 
 // Canonical device identifier — must be the single source of truth for matching
