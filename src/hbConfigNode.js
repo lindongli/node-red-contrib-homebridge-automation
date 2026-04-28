@@ -14,10 +14,9 @@ const HUMAN_TYPE_DISPLAY = {
   'Fanv2': 'Fan v2',
 };
 
-// Canonical device name — accessoryInformation.Name if set, otherwise serviceName
-
-// return service.values?.ConfiguredName || service.serviceName || service.accessoryInformation.Name;
-
+// Canonical device name — prefer values.ConfiguredName; otherwise use serviceName
+// (appending values.serviceLabelIndex when present); finally fall back to
+// accessoryInformation.Name, also appending values.serviceLabelIndex when present.
 function getFriendlyName(service) {
   if (service.values?.ConfiguredName) {
     return service.values.ConfiguredName;
