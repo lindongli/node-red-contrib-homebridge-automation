@@ -19,6 +19,7 @@ jest.mock('@homebridge/hap-client', () => {
 
 // Helper function to load test fixtures
 const loadFixture = (filename) => {
+  // eslint-disable-next-line no-undef
   const fixturePath = path.join(__dirname, '..', 'test', filename);
   return JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
 };
