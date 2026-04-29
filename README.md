@@ -219,6 +219,14 @@ With a plugin, you can see if it supports Real Time events, by opening the Home 
 
 ### Version 0.3.4
 
+#### Breaking Change
+
+- Have updated support for power bars and devices with multiple services #216, #212 and #221.  As a side effect the number of devices returned have increased and names of devices with multilple services have changed.  Pls revisit your device naming after installing.
+
+#### Changes
+
+- Fix deploy reconnection, message queuing, and editor UX, tks @dxdc #215
+
 #### New Features
 
 - Added **HAP-Client Debug** configuration option on the `hb-conf` node.  When enabled, enables debug logging within the HAP-Client library, which outputs detailed HAP protocol information.  Useful for troubleshooting Homebridge instance discovery issues.
