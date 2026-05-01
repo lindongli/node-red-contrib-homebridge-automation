@@ -18,8 +18,6 @@ class HBConfigNode {
     this.ctDevices = [];
     this.hbDevices = [];
     this.clientNodes = [];
-    //  this.log = new Log(console, true);
-    this.discoveryTimeout = null;
 
     // Initialize HAP client
     this.hapClient = new HapClient({
@@ -31,30 +29,30 @@ class HBConfigNode {
     this.hapClient.on('discovery-ended', this.hapClient.refreshInstances);
     if (this.on)
       this.on('close', this.close.bind(this));
-    this.refreshInProcess = true; // Prevents multiple refreshes, hapClient kicks of a discovery on start
   }
 
-  /**
-   * Wait for no more instance discoveries to be made before publishing services
-   */
   waitForNoMoreDiscoveries = (instance) => {
     if (instance)
       debug('Instance discovered: %s - %s %s:%s', instance?.name, instance?.username, instance?.ipAddress, instance?.port);
-    if (!this.discoveryTimeout) {
-      this.discoveryTimeout = setTimeout(() => {
-        this.debug('No more instances discovered, publishing services');
-        this.handleReady();
-        this.discoveryTimeout = null;
-        this.refreshInProcess = false;
-      }, 20000);  // resetInstancePool() triggers a discovery after 6 seconds.  Need to wait for it to finish.
-    }
+    // Serialize handleReady() calls so concurrent instance-discovered events
+    // don't race in connectClientNodes/monitorDevices. The skip condition
+    // makes redundant follow-up runs cheap.
+    this._readyChain = (this._readyChain || Promise.resolve())
+      .catch(() => {})
+      .then(() => this.handleReady())
+      .catch(e => this.error(`handleReady error: ${e.stack || e}`));
   };
 
   /**
-   * Populate the list of devices and handle duplicates
+   * Fetch all services, update hbDevices, and connect registered nodes.
+   * Skips reconnect if nothing changed and all nodes are already connected.
    */
   async handleReady() {
     const updatedDevices = await this.hapClient.getAllServices();
+    if (!updatedDevices || updatedDevices.length === 0) {
+      debug('No devices returned yet, waiting for instance-discovered to retry');
+      return;
+    }
     if (this.debugLogging && updatedDevices && updatedDevices.length && process.uptime() < 300) {
       try {
         const storagePath = path.join(process.cwd(), 'homebridge-automation-endpoints.json');
@@ -69,6 +67,7 @@ class HBConfigNode {
       const friendlyName = (service.accessoryInformation.Name ? service.accessoryInformation.Name : service.serviceName);
       service.uniqueId = `${service.instance.name}${service.instance.username}${service.accessoryInformation.Manufacturer}${friendlyName}${service.uuid.slice(0, 8)}`;
     });
+    let changed = false;
     updatedDevices.forEach((updatedService, index) => {
       if (this.hbDevices.find(service => service.uniqueId === updatedService.uniqueId)) {
         // debug(`Exsiting UniqueID breakdown - ${updatedService.serviceName}-${updatedService.instance.username}-${updatedService.aid}-${updatedService.iid}-${updatedService.type}`);
@@ -77,13 +76,19 @@ class HBConfigNode {
       } else {
         // debug(`New Service UniqueID breakdown - ${updatedService.serviceName}-${updatedService.instance.username}-${updatedService.aid}-${updatedService.iid}-${updatedService.type}`);
         this.hbDevices.push(updatedService);
+        changed = true;
       }
     });
+    const hasUnconnectedNodes = Object.values(this.clientNodes).some(n => !n.hbDevice);
+    if (!changed && this.monitor && !hasUnconnectedNodes) {
+      debug('handleReady: monitor active, no new devices, all nodes matched - skipping reconnect');
+      return;
+    }
     this.evDevices = this.toList({ perms: 'ev' });
     this.ctDevices = this.toList({ perms: 'pw' });
     this.log(`Devices initialized: evDevices: ${this.evDevices.length}, ctDevices: ${this.ctDevices.length}`);
     this.handleDuplicates(this.evDevices);
-    this.connectClientNodes();
+    await this.connectClientNodes();
   }
 
   toList(perms) {
@@ -138,7 +143,6 @@ class HBConfigNode {
   async connectClientNodes() {
     debug('connect %s nodes', Object.keys(this.clientNodes).length);
     for (const [key, clientNode] of Object.entries(this.clientNodes)) {
-      // debug('_Register: %s type: "%s" "%s" "%s"', clientNode.type, clientNode.name, clientNode.instance, clientNode.device);
       const matchedDevice = this.hbDevices.find(service => {
         const friendlyName = (service.accessoryInformation.Name ? service.accessoryInformation.Name : service.serviceName);
         const deviceIdentifier = `${service.instance.name}${service.instance.username}${service.accessoryInformation.Manufacturer}${friendlyName}${service.uuid.slice(0, 8)}`;
@@ -166,10 +170,15 @@ class HBConfigNode {
         .map(node => node.hbDevice) // Map to hbDevice property
         .filter(Boolean); // Remove any undefined or null values, if present;
       this.log(`Connected to ${Object.keys(monitorNodes).length} Homebridge devices`);
-      // console.log('monitorNodes', monitorNodes);
       if (this.monitor) {
-        // This is kinda brute force, and should be refactored to only refresh the changed monitorNodes
-        this.monitor.finish();
+        // Remove all listeners before finishing so stale events (e.g. monitor-close)
+        // on the old monitor object don't trigger reconnect loops.
+        try {
+          this.monitor.removeAllListeners();
+          this.monitor.finish();
+        } catch (e) {
+          debug('monitor cleanup error (already closed): %s', e.message);
+        }
       }
       this.monitor = await this.hapClient.monitorCharacteristics(monitorNodes);
       this.monitor.on('service-update', (services) => {
@@ -180,19 +189,22 @@ class HBConfigNode {
             return clientNode.config.device === deviceIdentifier;
           }
           );
-          // debug('service-update', service.serviceName, eventNodes);
           eventNodes.forEach(eventNode => eventNode.emit('hbEvent', service));
         });
       });
       this.monitor.on('monitor-close', (instance, hadError) => {
         debug('monitor-close', instance.name, instance.ipAddress, instance.port, hadError)
         this.disconnectClientNodes(instance);
-        // this.refreshDevices();
+        this.scheduleReconnect();
       })
       this.monitor.on('monitor-refresh', (instance, hadError) => {
         debug('monitor-refresh', instance.name, instance.ipAddress, instance.port, hadError)
+        // Instance self-recovered; cancel any pending reconnect attempt
+        if (this.reconnectTimeout) {
+          clearTimeout(this.reconnectTimeout);
+          this.reconnectTimeout = null;
+        }
         this.reconnectClientNodes(instance);
-        // this.refreshDevices();
       })
       this.monitor.on('monitor-error', (instance, hadError) => {
         debug('monitor-error', instance, hadError)
@@ -202,6 +214,7 @@ class HBConfigNode {
 
   disconnectClientNodes(instance) {
     debug('disconnectClientNodes', `${instance.ipAddress}:${instance.port}`);
+    this.monitor = null; // force next handleReady() to rebuild the monitor
     const clientNodes = Object.values(this.clientNodes).filter(clientNode => {
       return `${clientNode.hbDevice?.instance.ipAddress}:${clientNode.hbDevice?.instance.port}` === `${instance.ipAddress}:${instance.port}`;
     });
@@ -224,8 +237,30 @@ class HBConfigNode {
     });
   }
 
+  /**
+   * Reconnect after monitor-close: calls handleReady() after 5s so instance
+   * info is refreshed. Retries every 5s; cancelled on monitor-refresh or close.
+   */
+  scheduleReconnect() {
+    if (this.reconnectTimeout) return; // already scheduled
+    this.reconnectTimeout = setTimeout(() => {
+      this.reconnectTimeout = null;
+      debug('Auto-reconnect: re-fetching services after monitor-close');
+      // Use the same chain as waitForNoMoreDiscoveries so reconnects don't
+      // race with concurrent registerClientNode/instance-discovered runs.
+      this._readyChain = (this._readyChain || Promise.resolve())
+        .catch(() => {})
+        .then(() => this.handleReady())
+        .catch(e => {
+          this.error(`Auto-reconnect failed: ${e.stack || e}, retrying in 5s`);
+          this.scheduleReconnect();
+        });
+    }, 5000);
+  }
+
   close() {
     debug('hb-config: close');
+    clearTimeout(this.reconnectTimeout);
     this.hapClient?.destroy();
   }
 }
