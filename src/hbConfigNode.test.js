@@ -92,7 +92,7 @@ describe('Device list generation', () => {
   });
 
   test('should correctly parse power bar devices', async () => {
-    const EXPECTED_DEVICE_COUNT = 8;
+    const EXPECTED_DEVICE_COUNT = 9;
     const endpoints = loadFixture('powerBar-endpoints.json');
     const expectedDevices = loadFixture('powerBar-hbDevices.json');
 
@@ -101,12 +101,13 @@ describe('Device list generation', () => {
 
     const result = node.toList({ perms: 'ev' });
 
+    // fs.writeFileSync(path.join(__dirname, '..', 'test', 'powerBar-hbDevices.json'), JSON.stringify(result, null, 2), 'utf8');
     expect(result).toHaveLength(EXPECTED_DEVICE_COUNT);
     expect(result).toEqual(expectedDevices);
   });
 
   test('should correctly handle service label indexes', async () => {
-    const EXPECTED_DEVICE_COUNT = 8;
+    const EXPECTED_DEVICE_COUNT = 9;
     const endpoints = loadFixture('serviceLabelIndex-endpoints.json');
     const expectedDevices = loadFixture('serviceLabelIndex-hbDevices.json');
 
@@ -114,7 +115,7 @@ describe('Device list generation', () => {
     await node.handleReady();
 
     const result = node.toList({ perms: 'ev' });
-
+    // fs.writeFileSync(path.join(__dirname, '..', 'test', 'serviceLabelIndex-hbDevices.json'), JSON.stringify(result, null, 2), 'utf8');
     expect(result).toHaveLength(EXPECTED_DEVICE_COUNT);
     expect(result).toEqual(expectedDevices);
   });

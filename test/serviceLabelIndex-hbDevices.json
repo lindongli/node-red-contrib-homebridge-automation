@@ -1,5 +1,14 @@
 [
   {
+    "name": "Greeni - Without Service Name-1",
+    "fullName": "Greeni - Without Service Name-1 - Outlet (Tasmota)",
+    "sortName": "Greeni - Without Service Name-1:Outlet",
+    "uniqueId": "homebridge1C:22:3D:E3:CF:34TasmotaGreeni - Without Service Name-100000047",
+    "homebridge": "homebridge",
+    "service": "Outlet",
+    "manufacturer": "Tasmota"
+  },
+  {
     "name": "Office Power 1-1",
     "fullName": "Office Power 1-1 - Outlet (Tasmota)",
     "sortName": "Office Power 1-1:Outlet",
