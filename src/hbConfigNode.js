@@ -147,7 +147,7 @@ class HBConfigNode {
     // Fix broken uniqueId's from HAP-Client
     updatedDevices.forEach((service) => {
       service.uniqueId = getDeviceIdentifier(service);
-      service.friendlyName = getFriendlyName(service);
+      service.friendlyName = composeDisplayName(service);
     });
     // Scan and report duplicate uniqueId's within the updated list — these should never happen, but if they do, the debug log will show the breakdown of the offending uniqueId for troubleshooting
     const uniqueIdCounts = {};
