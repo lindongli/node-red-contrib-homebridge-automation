@@ -119,6 +119,23 @@ describe('Device list generation', () => {
     expect(result).toHaveLength(EXPECTED_DEVICE_COUNT);
     expect(result).toEqual(expectedDevices);
   });
+
+  test('Devices with duplicate unique IDs should be handled and logged', async () => {
+    const EXPECTED_DEVICE_COUNT = 1;
+    const endpoints = loadFixture('duplicate-endpoints.json');
+    const expectedDevices = loadFixture('duplicate-hbDevices.json');
+
+    expect(node.warn).toHaveBeenCalledTimes(0);
+    node.hapClient.getAllServices.mockResolvedValue(endpoints);
+    await node.handleReady();
+
+    const result = node.toList({ perms: 'ev' });
+    fs.writeFileSync(path.join(__dirname, '..', 'test', 'duplicate-hbDevices.json'), JSON.stringify(result, null, 2), 'utf8');
+    expect(result).toHaveLength(EXPECTED_DEVICE_COUNT);
+    expect(result).toEqual(expectedDevices);
+    expect(node.warn).toHaveBeenCalledTimes(1);
+    expect(node.warn).toHaveBeenCalledWith(expect.stringContaining('Duplicate unique id detected'));
+  });
 });
 
 describe('HapClient config options', () => {

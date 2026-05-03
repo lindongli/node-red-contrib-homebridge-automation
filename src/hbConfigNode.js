@@ -147,6 +147,23 @@ class HBConfigNode {
     updatedDevices.forEach((service) => {
       service.uniqueId = getDeviceIdentifier(service);
     });
+    // Scan and report duplicate uniqueId's within the updated list — these should never happen, but if they do, the debug log will show the breakdown of the offending uniqueId for troubleshooting
+    const uniqueIdCounts = {};
+    updatedDevices.forEach(service => {
+      uniqueIdCounts[service.uniqueId] = (uniqueIdCounts[service.uniqueId] || 0) + 1;
+    });
+    Object.entries(uniqueIdCounts).forEach(([uniqueId, count]) => {
+      if (count > 1) {
+        const duplicates = updatedDevices.filter(s => s.uniqueId === uniqueId);
+        // this.warn(`Duplicate uniqueId detected: "${uniqueId}" appears ${count} times. Breakdown: "${duplicates.map(s => `${s.friendlyName}-Homebridge:${s.instance.username}-AID:${s.aid}-IID:${s.iid}-Type:${s.type}"`).join(' | ')}`);
+
+        // Ignore duplicate uniqueId's for Camera RTP Stream Management services since they are a known issue in HAP-Client and don't cause functional issues in this module
+        if (duplicates[0].type !== 'CameraRTPStreamManagement') {
+          // console.log(duplicates[0]);
+          this.warn(`Duplicate unique id detected: Please configure a unique name for "${composeDisplayName(duplicates[0])}".`);
+        }
+      }
+    });
     // Rebuild device list: update existing, add new, drop stale, deduplicate
     const existingMap = new Map(this.hbDevices.map(s => [s.uniqueId, s]));
     const newMap = new Map();
