@@ -149,7 +149,7 @@ class HBConfigNode {
       service.uniqueId = getDeviceIdentifier(service);
       service.friendlyName = composeDisplayName(service);
     });
-    // Scan and report duplicate uniqueId's within the updated list — these should never happen, but if they do, the debug log will show the breakdown of the offending uniqueId for troubleshooting
+    // Scan and report duplicate uniqueId's within the updated list
     const uniqueIdCounts = {};
     updatedDevices.forEach(service => {
       uniqueIdCounts[service.uniqueId] = (uniqueIdCounts[service.uniqueId] || 0) + 1;
