@@ -221,7 +221,7 @@ With a plugin, you can see if it supports Real Time events, by opening the Home 
 
 #### Breaking Change
 
-- Have updated support for power bars and devices with multiple services #216, #212 and #221.  As a side effect the number of devices returned have increased and names of devices with multilple services have changed.  Pls revisit your device naming after installing.
+- Have updated support for power bars and devices with multiple services #216, #212 and #221.  As a side effect the number of devices returned have increased and names of devices with multiple services have changed.  Pls revisit your devices after installing.  If an issue with naming occurs, the debug log will show it as a Device Registration Error.  In my setup node's with Camera Motion sensors and Ceiling Fans needed to be revisited.
 
 #### Changes
 
